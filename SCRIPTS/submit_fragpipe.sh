@@ -27,6 +27,7 @@ DATA_DIR="/scratch/lam.wayn"
 SEARCH_DIR="${DATA_DIR}/MS_SEARCH"
 PLEX_LIST="${SEARCH_DIR}/plex_list.txt"
 FASTA_DIR="${DATA_DIR}/FASTA/per_plex"
+OUTDIR="${SEARCH_DIR}/beneficial_mut_results/${PLEX_ID}"
 # If set (by run_ms_search.sh in single mode), use this FASTA for every
 # plex instead of the per-plex FASTA in FASTA_DIR.
 SINGLE_FASTA="${SINGLE_FASTA:-/scratch/lam.wayn/FASTA/per_plex_fragpipe/multi_singleton_ref_supp7_decoy.fasta}"
@@ -64,8 +65,6 @@ if [[ -n "$SINGLE_FASTA" ]]; then
 else
     FASTA="${FASTA_DIR}/${PLEX_ID}.fasta"
 fi
-OUTDIR="${SEARCH_DIR}/beneficial_mut_results/${PLEX_ID}"
-ANNOTATION="${SEARCH_DIR}/annotations/${PLEX_ID}_annotation.tsv"
 
 # Use per-plex workflow or use default
 if [[ -f "${SEARCH_DIR}/workflows/${PLEX_ID}.workflow" ]]; then
