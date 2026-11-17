@@ -149,14 +149,14 @@ else
     FASTA_ARG="--fasta-dir $FASTA_DIR"
 fi
 
-# python3 "${SCRIPTS_DIR}/generate_manifests.py" \
-#     --tmt-map "$TMT_MAP" \
-#     --raw-dir "$RAW_DIR" \
-#     $FASTA_ARG \
-#     $WORKFLOW_FLAG \
-#     -o "$SEARCH_DIR"
-# 
-# echo ""
+python3 "${SCRIPTS_DIR}/generate_manifests.py" \
+    --tmt-map "$TMT_MAP" \
+    --raw-dir "$RAW_DIR" \
+    $FASTA_ARG \
+    $WORKFLOW_FLAG \
+    -o "$SEARCH_DIR"
+
+echo ""
 
 # Check plex list
 PLEX_LIST="${SEARCH_DIR}/plex_list.txt"
@@ -205,7 +205,7 @@ if [[ -n "$SINGLE_FASTA_INPUT" ]]; then
     export SINGLE_FASTA
 fi
 
-sbatch --array=1 "${SCRIPTS_DIR}/submit_fragpipe.sh"
+sbatch --array=1-${NUM_PLEXES}%5 "${SCRIPTS_DIR}/submit_fragpipe.sh"
 
 echo ""
 echo "Monitor with: squeue -u \$USER -n fragpipe"

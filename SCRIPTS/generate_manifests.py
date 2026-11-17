@@ -148,23 +148,31 @@ def write_manifest(raw_files, plex_id, out_path):
             f.write(f"{raw_path}\t{plex_id}\t1\tDDA\n")
 
 
-def write_annotation(channel_map, plex_id, out_path):
+def write_annotation(channel_map, plex_id, out_path, tmt_type="TMT-10"):
     """
-    Write TMT channel annotation file.
+    Write the TMT channel annotation file in the format FragPipe reads:
+    two whitespace-separated columns, channel then sample name, no header.
 
-    Format: sample  channel  condition
-    This can be loaded into FragPipe's TMT-Integrator configuration.
+        126   11BR047_Primary_Tumor
+        127N  11BR043_Primary_Tumor
+        ...
+        131   Reference
+
+    FragPipe splits each line on whitespace, so spaces inside sample names
+    are replaced with underscores. TMT-10 has a single 131 channel, labelled
+    "131"; TMT-11 and larger split it into 131N and 131C.
     """
+    order = list(TMT_CHANNEL_MAP.keys())
     with open(out_path, "w") as f:
-        f.write("sample\tplex\tchannel\tcondition\n")
         for channel_key in sorted(channel_map.keys(),
-                                   key=lambda c: list(TMT_CHANNEL_MAP.keys()
-                                                      ).index(c)
-                                   if c in TMT_CHANNEL_MAP else 999):
+                                  key=lambda c: order.index(c)
+                                  if c in TMT_CHANNEL_MAP else 999):
             info = channel_map[channel_key]
             fp_channel = TMT_CHANNEL_MAP.get(channel_key, channel_key)
-            f.write(f"{info['sample']}\t{plex_id}\t{fp_channel}\t"
-                    f"{info['condition']}\n")
+            if tmt_type == "TMT-10" and channel_key in ("tmt_131", "tmt_131n"):
+                fp_channel = "131"
+            sample = re.sub(r"\s+", "_", info["sample"].strip())
+            f.write(f"{fp_channel}\t{sample}\n")
 
 
 def patch_workflow(template_path, fasta_path, out_path, tmt_type):
@@ -368,7 +376,7 @@ def main():
         tmt_type = detect_tmt_type(channel_map)
         annotation_path = os.path.join(plex_raw_dir,
                                        f"{plex_id}_annotation.txt")
-        write_annotation(channel_map, plex_id, annotation_path)
+        write_annotation(channel_map, plex_id, annotation_path, tmt_type)
 
         # Patch workflow if template provided
         if args.workflow_template:

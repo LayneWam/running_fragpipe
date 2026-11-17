@@ -108,18 +108,6 @@ echo "  Output:    $OUTDIR"
 echo "  Threads:   ${SLURM_CPUS_PER_TASK}"
 echo ""
 
-# Copy annotation to data/plex directory reformatted (channel sample) (FragPipe TMT-Integrator looks for it there)
-if [[ -f "$ANNOTATION" ]]; then
-    cp "$ANNOTATION" "${OUTDIR}/experiment_annotation.tsv"
-    echo "Annotation written to ${OUTDIR}/experiment_annotation.tsv"
-    awk -F'\t' -v OFS='\t' 'NR>1 {gsub(/[[:space:]]+/, "_", $1); print $3, $1}' "$ANNOTATION" \
-    	> "${DATA_DIR}/RAW/${PLEX_ID}_1/${PLEX_ID}_1_annotation.txt"
-    echo "Annotation written to ${DATA_DIR}/RAW/${PLEX_ID}_1/${PLEX_ID}_1_annotation.txt"
-else
-    echo "$ANNOTATION not found"
-    exit 1
-fi
-
 # Run FragPipe in headless mode
 "$FRAGPIPE_BIN" \
     --headless \
