@@ -6,6 +6,7 @@ library(Biostrings)
 library(stringr)
 library(data.table)
 library(janitor)
+library(ggrepel)
 
 `%notin%` <- function(a, b) !(a %in% b)
 
@@ -649,8 +650,13 @@ write.csv(results, "stattest_results.csv", row.names = FALSE)
 
 # visualize
 stattest_results <- read.csv("stattest_results.csv", header = T)
-ggplot(stattest_results, aes(x=mean_observed_prob, y=mean_expected_prob, col=factor(call)) +
-         geom_point()
+ggplot(stattest_results, aes(x = mean_observed_prob, y = mean_expected_prob, color = factor(call), label = multi_name)) +
+  geom_point() +
+  geom_text_repel(size = 2, show.legend = F) + 
+  labs(x = "mean_observed_prob", y = "mean_expected_prob", color = "call") +
+  scale_x_log10() +
+  scale_y_log10() +
+  theme_minimal()
 
 # ============================================================================
 # 13. Are singles from original paper really multis? need to do an open search
